@@ -1,0 +1,51 @@
+# HA demo: two aegisd replicas sharing one Postgres database. Only one
+# replica holds the scheduler lock (pg_try_advisory_lock) at a time — kill
+# it and watch the other take over the claim loop, cron ticker, and lease
+# reclamation within a few seconds, no manual failover step required.
+#
+#   docker compose -f docker-compose.ha.yml up --build
+#   open http://localhost:8081 (or :8082) for either replica's dashboard
+#   docker compose -f docker-compose.ha.yml stop aegisd-a   # simulate a crash
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aegis
+      POSTGRES_PASSWORD: aegis
+      POSTGRES_DB: aegis
+    ports:
+      - "5432:5432"
+    volumes:
+      - aegis-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aegis"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  aegisd-a:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      AEGIS_DRIVER: postgres
+      AEGIS_POSTGRES_DSN: "postgres://aegis:aegis@postgres:5432/aegis?sslmode=disable"
+      AEGIS_ADDR: ":8080"
+
+  aegisd-b:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    environment:
+      AEGIS_DRIVER: postgres
+      AEGIS_POSTGRES_DSN: "postgres://aegis:aegis@postgres:5432/aegis?sslmode=disable"
+      AEGIS_ADDR: ":8080"
+
+volumes:
+  aegis-pg-data:

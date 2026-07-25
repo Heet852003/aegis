@@ -1,0 +1,20 @@
+# Quickstart: a single Aegis server backed by embedded SQLite.
+#
+#   docker compose up --build
+#   open http://localhost:8080
+#
+# For a multi-node / Postgres / leader-election demo, see docker-compose.ha.yml.
+services:
+  aegisd:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      AEGIS_DRIVER: sqlite
+      AEGIS_SQLITE_PATH: /data/aegis.db
+      AEGIS_ADDR: ":8080"
+    volumes:
+      - aegis-data:/data
+
+volumes:
+  aegis-data:

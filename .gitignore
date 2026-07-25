@@ -1,0 +1,32 @@
+# Go
+/aegis.db
+/aegis.db-*
+*.db
+*.db-shm
+*.db-wal
+/bin/
+
+# Node / web
+# Note: web/dist IS committed (not ignored) — it's the built dashboard the
+# Go server embeds via go:embed, so `go build ./...` works right after a
+# fresh clone with no Node toolchain required. Run `npm run build` in web/
+# to regenerate it after UI changes.
+web/node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local Claude Code dev-session config (not part of the project)
+/.claude/

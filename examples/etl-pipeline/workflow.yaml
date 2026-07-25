@@ -1,0 +1,37 @@
+# An example DAG: extract -> transform -> load, plus a notify step that only
+# runs after both transform and load succeed (fan-in). Submit with:
+#
+#   aegis workflow submit examples/etl-pipeline/workflow.yaml
+#
+name: etl-pipeline
+steps:
+  - name: extract
+    type: extract_data
+    payload:
+      source: "s3://example-bucket/raw/events.csv"
+
+  - name: transform
+    type: transform_data
+    depends_on: [extract]
+    payload:
+      rules: ["dedupe", "normalize_timestamps"]
+
+  - name: validate
+    type: validate_data
+    depends_on: [extract]
+    payload:
+      schema: "events.schema.json"
+
+  - name: load
+    type: load_data
+    depends_on: [transform, validate]
+    payload:
+      destination: "warehouse.events"
+
+  - name: notify
+    type: send_notification
+    depends_on: [load]
+    max_attempts: 5
+    payload:
+      channel: "#data-pipelines"
+      message: "etl-pipeline completed"

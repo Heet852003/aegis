@@ -1,0 +1,39 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5f3ff"/>
+      <stop offset="100%" stop-color="#ddd6fe"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M128 20
+           L206 52
+           V118
+           C206 172 174 210 128 236
+           C82 210 50 172 50 118
+           V52
+           Z"
+        fill="url(#shieldGrad)" stroke="#4c1d95" stroke-width="4" stroke-linejoin="round"/>
+
+  <path d="M128 20
+           L206 52
+           V118
+           C206 172 174 210 128 236
+           Z"
+        fill="#000000" opacity="0.12"/>
+
+  <g stroke="#ede9fe" stroke-width="5" stroke-linecap="round" opacity="0.9">
+    <line x1="92" y1="150" x2="128" y2="108"/>
+    <line x1="128" y1="108" x2="164" y2="150"/>
+    <line x1="128" y1="108" x2="128" y2="150"/>
+  </g>
+
+  <circle cx="128" cy="100" r="16" fill="url(#nodeGrad)" stroke="#4c1d95" stroke-width="4"/>
+  <circle cx="92" cy="158" r="13" fill="url(#nodeGrad)" stroke="#4c1d95" stroke-width="4"/>
+  <circle cx="128" cy="158" r="13" fill="url(#nodeGrad)" stroke="#4c1d95" stroke-width="4"/>
+  <circle cx="164" cy="158" r="13" fill="url(#nodeGrad)" stroke="#4c1d95" stroke-width="4"/>
+</svg>
