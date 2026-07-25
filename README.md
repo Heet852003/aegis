@@ -18,7 +18,7 @@ Aegis is a from-scratch alternative to Celery / Sidekiq / Temporal for teams
 that want a durable job queue and DAG workflow engine without adopting a
 managed platform or a Redis + Postgres + separate-orchestrator stack. It runs
 as a single static binary with an embedded dashboard, backed by either
-zero-config SQLite or Postgres for multi-node HA — and it's built to be
+zero-config SQLite or Postgres for multi-node HA. It's also built to be
 *read*, not just run: the whole engine is a few thousand lines of Go with no
 hidden magic.
 
@@ -31,8 +31,8 @@ implements the actual hard parts of a production queue:
   reclaim loop, not just "trust the worker."
 - **Exponential backoff with full jitter** (the AWS Architecture Blog
   algorithm) instead of naive fixed-delay retries that cause retry storms.
-- **A real DAG engine** — fan-out, fan-in, cycle detection, and reactive
-  (event-driven, not polling) step advancement — not just a linear chain.
+- **A real DAG engine**: fan-out, fan-in, cycle detection, and reactive
+  (event-driven, not polling) step advancement, not just a linear chain.
 - **Leader election** (Postgres advisory locks) so you can run multiple
   server replicas and have scheduling fail over automatically if the leader
   dies, without an external coordination service.
@@ -46,17 +46,17 @@ implements the actual hard parts of a production queue:
 - **Job queue**: priorities, per-queue routing, delayed/scheduled jobs, retry
   with backoff, dead-letter queue with manual requeue.
 - **Workflows**: define a DAG in YAML/JSON, submit it, and steps run the
-  moment their dependencies succeed — no polling, driven by an internal
-  event bus.
+  moment their dependencies succeed, driven reactively by an internal
+  event bus with no polling.
 - **Cron**: recurring jobs on a standard cron expression.
 - **Real-time dashboard**: live job table, DAG visualizer, throughput/latency
-  charts, worker pool view, dead-letter inspector — all pushed over
-  WebSocket, not polled.
+  charts, worker pool view, dead-letter inspector, all pushed over
+  WebSocket rather than polled.
 - **Polyglot workers**: a Go SDK and a Python SDK speaking the same
   WebSocket dispatch protocol, so a Go and a Python worker can pull from the
   same queue side by side.
 - **CLI**: submit/inspect jobs and workflows, manage cron schedules, watch
-  workers — `aegis job submit`, `aegis workflow submit`, etc.
+  workers, using commands like `aegis job submit` and `aegis workflow submit`.
 - **One binary**: the React dashboard is embedded into the Go binary via
   `go:embed`; `go build` produces a single deployable artifact.
 
@@ -120,7 +120,7 @@ that decides what runs next.
 docker compose up --build
 ```
 
-Open http://localhost:8080 — the dashboard, API, and an embedded SQLite
+Open http://localhost:8080. The dashboard, API, and an embedded SQLite
 database are all running in one container.
 
 ### From source
@@ -145,7 +145,7 @@ Watch it execute live at http://localhost:8080.
 
 ```bash
 docker compose -f docker-compose.ha.yml up --build
-# open http://localhost:8081 and :8082 — both are the same cluster
+# open http://localhost:8081 and :8082, both are the same cluster
 docker compose -f docker-compose.ha.yml stop aegisd-a   # simulate a crash
 # aegisd-b picks up scheduling within a few seconds
 ```
@@ -196,7 +196,7 @@ asyncio.run(worker.run())
 ```
 
 Raising/returning an error fails the job; Aegis retries with backoff up to
-`max_attempts` before dead-lettering it — handlers don't implement their own
+`max_attempts` before dead-lettering it. Handlers don't implement their own
 retry logic.
 
 ## REST API
@@ -237,7 +237,7 @@ retry logic.
   that out.
 - **In-process event bus, not Postgres LISTEN/NOTIFY or Redis pub/sub**:
   since exactly one node is ever the active scheduler at a time (see leader
-  election), all state mutation already happens in one process — an
+  election), all state mutation already happens in one process, so an
   in-memory bus is simpler and faster than reaching for another piece of
   infrastructure to solve a problem a single process doesn't have.
 
@@ -271,4 +271,4 @@ type-checks the dashboard and syntax-checks the Python SDK.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE) for details.
