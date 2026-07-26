@@ -22,6 +22,18 @@ zero-config SQLite or Postgres for multi-node HA. It's also built to be
 *read*, not just run: the whole engine is a few thousand lines of Go with no
 hidden magic.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/assets/overview.png" width="100%" alt="Aegis dashboard overview: live pending/running/dead-letter/worker counts, a throughput chart, and a recent jobs table" />
+</p>
+<p align="center">
+  <img src="docs/assets/workflows.png" width="100%" alt="Aegis workflow view: a DAG graph showing fan-out from extract into transform and validate, fan-in at load, then notify" />
+</p>
+<p align="center">
+  <img src="docs/assets/jobs.png" width="100%" alt="Aegis jobs table with status, queue, attempts, and per-row actions" />
+</p>
+
 ## Why this exists
 
 Most "build a job queue" toy projects wrap a list in a mutex. Aegis instead

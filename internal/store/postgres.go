@@ -493,8 +493,13 @@ func (s *PostgresStore) Stats(ctx context.Context) (*models.Stats, error) {
 		FROM jobs WHERE status=$1 AND started_at IS NOT NULL AND ended_at >= $2`, models.JobSucceeded, since).Scan(&st.AvgLatencyMs)
 	st.P95LatencyMs = st.AvgLatencyMs * 1.4
 
+	// A worker row exists exactly as long as its WebSocket connection is
+	// open (inserted on register, deleted on disconnect), so counting rows
+	// is the correct "online" signal, unlike last_heartbeat: workers only
+	// send heartbeats while a job is in flight, so an idle-but-connected
+	// worker's heartbeat can be arbitrarily old without meaning it's gone.
 	var workers int64
-	s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM workers WHERE last_heartbeat >= $1`, time.Now().UTC().Add(-30*time.Second)).Scan(&workers)
+	s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM workers`).Scan(&workers)
 	st.Workers = int(workers)
 
 	return &st, nil
